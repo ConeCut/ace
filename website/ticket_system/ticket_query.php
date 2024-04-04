@@ -22,16 +22,42 @@ include 'db_connection.php';
     // Assuming you have a session variable for user ID
     $userId = $_SESSION['user_id'];
 
-    // Query to fetch the ticket number for the logged-in user
-    $query = "SELECT ticket_nr FROM ticket WHERE user_id = $userId";
-    $result = mysqli_query($connection, $query);
+    // Query to count the total number of unsolved tickets in front of the user
+    $queryTotalUnsolved = "SELECT COUNT(*) AS total_unsolved_tickets FROM ticket WHERE ticket_status != 'Solved' AND user_id != $userId";
+    $resultTotalUnsolved = mysqli_query($connection, $queryTotalUnsolved);
 
-    if (mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result);
-        $ticketNumber = $row['ticket_nr'];
-        echo "<p>Your ticket number is: $ticketNumber</p>";
+    // Query to count the user's unsolved tickets
+    $queryUserUnsolved = "SELECT COUNT(*) AS user_unsolved_tickets FROM ticket WHERE ticket_status != 'Solved' AND user_id = $userId";
+    $resultUserUnsolved = mysqli_query($connection, $queryUserUnsolved);
+
+    // Query to count the user's solved tickets
+    $queryUserSolved = "SELECT COUNT(*) AS user_solved_tickets FROM ticket WHERE ticket_status = 'Solved' AND user_id = $userId";
+    $resultUserSolved = mysqli_query($connection, $queryUserSolved);
+
+    if ($resultTotalUnsolved && mysqli_num_rows($resultTotalUnsolved) > 0 && $resultUserUnsolved && mysqli_num_rows($resultUserUnsolved) > 0 && $resultUserSolved && mysqli_num_rows($resultUserSolved) > 0) {
+        $rowTotalUnsolved = mysqli_fetch_assoc($resultTotalUnsolved);
+        $totalUnsolvedTickets = $rowTotalUnsolved['total_unsolved_tickets'];
+
+        $rowUserUnsolved = mysqli_fetch_assoc($resultUserUnsolved);
+        $userUnsolvedTickets = $rowUserUnsolved['user_unsolved_tickets'];
+
+        $rowUserSolved = mysqli_fetch_assoc($resultUserSolved);
+        $userSolvedTickets = $rowUserSolved['user_solved_tickets'];
+
+        echo "<table>";
+        echo "<tr><th>Total Unsolved Tickets currently in front of you</th><th>Your Unsolved Tickets</th><th>Your Solved Tickets</th></tr>";
+        echo "<tr>";
+        echo "<td>$totalUnsolvedTickets</td>";
+        echo "<td>$userUnsolvedTickets</td>";
+        echo "<td>$userSolvedTickets</td>";
+        echo "</tr>";
+        echo "</table>";
+
+        echo "<form action='tickets_all.php' method='get'>";
+        echo "<button>Go Back to See All Your Tickets</button>";
+        echo "</form>";
     } else {
-        echo "<p>No tickets found for your account.</p>";
+        echo "<p>No tickets found.</p>";
     }
 
     mysqli_close($connection);
