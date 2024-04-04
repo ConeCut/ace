@@ -25,63 +25,69 @@ if ($result && mysqli_num_rows($result) > 0) {
     $isAdmin = false;
     header('Location: index.php');
 }
-
 // Fetch all tickets
 $query = "SELECT * FROM ticket";
 $result = mysqli_query($connection, $query);
 
-// Process search query
-if (isset($_GET['search'])) {
-    $search = mysqli_real_escape_string($connection, $_GET['search']); // Sanitize input
-    $query = "SELECT * FROM ticket WHERE ticket_nr LIKE '%$search%' OR ticket_issue LIKE '%$search%' OR user_username LIKE '%$search%'";
-} else {
-    // Fetch all tickets if no search query is provided
-    $query = "SELECT * FROM ticket";
+// Process form submission for modifying tickets
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Get form data
+    $ticketId = $_POST['ticket_id'];
+    $ticketIssue = $_POST['ticket_issue'];
+    $ticketStatus = $_POST['ticket_status'];
+    $ticketSolution = $_POST['ticket_solution'];
+
+    // Update ticket in the database
+    $updateQuery = "UPDATE ticket SET ticket_issue = '$ticketIssue', ticket_status = '$ticketStatus', ticket_solution = '$ticketSolution' WHERE id = $ticketId";
+    if (mysqli_query($connection, $updateQuery)) {
+        // Ticket updated successfully
+        echo "<script>alert('Ticket updated successfully.');</script>";
+    } else {
+        // Error updating ticket
+        echo "<script>alert('Error updating ticket: " . mysqli_error($connection) . "');</script>";
+    }
 }
-$result = mysqli_query($connection, $query);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Tickets</title>
+    <title>Admin Page</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="container">
-    <h1>Admin Tickets</h1>
-    <!-- Search form -->
-    <form action="" method="GET">
-        <input type="text" name="search" placeholder="Search tickets..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
-        <input type="submit" value="Search">
-    </form>
-    <br>
 
-    <!-- Display tickets -->
+<div class="container">
+    <h1>Admin Page - Manage Tickets</h1>
     <table>
         <tr>
-            <th>Ticket Number</th>
+            <th>Ticket ID</th>
             <th>User ID</th>
             <th>User Name</th>
             <th>Ticket Issue</th>
-            <th>Status</th>
+            <th>Ticket Status</th>
+            <th>Ticket Solution</th>
+            <th>Action</th>
         </tr>
         <?php
         // Display tickets
         while ($row = mysqli_fetch_assoc($result)) {
             echo "<tr>";
-            echo "<td>" . $row['ticket_nr'] . "</td>";
+            echo "<form action='' method='POST'>";
+            echo "<td>" . $row['id'] . "<input type='hidden' name='ticket_id' value='" . $row['id'] . "'></td>";
             echo "<td>" . $row['user_id'] . "</td>";
             echo "<td>" . $row['user_username'] . "</td>";
-            echo "<td>" . $row['ticket_issue'] . "</td>";
-            echo "<td>" . $row['ticket_status'] . "</td>";
-            // Add more cells with ticket details as needed
+            echo "<td><input type='text' name='ticket_issue' value='" . $row['ticket_issue'] . "'></td>";
+            echo "<td><input type='text' name='ticket_status' value='" . $row['ticket_status'] . "'></td>";
+            echo "<td><input type='text' name='ticket_solution' value='" . $row['ticket_solution'] . "'></td>";
+            echo "<td><button type='submit'>Update</button></td>";
+            echo "</form>";
             echo "</tr>";
         }
         ?>
     </table>
 </div>
+
 </body>
 </html>

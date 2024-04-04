@@ -22,16 +22,17 @@ include 'db_connection.php';
     // Assuming you have a session variable for user ID
     $userId = $_SESSION['user_id'];
 
-    // Query to fetch ticket status for the logged-in user
-    $query = "SELECT ticket_nr, ticket_status FROM ticket WHERE user_id = $userId";
+    // Query to fetch ticket status and description for the logged-in user
+    $query = "SELECT ticket_nr, ticket_issue, ticket_status FROM ticket WHERE user_id = $userId";
     $result = mysqli_query($connection, $query);
 
     if (mysqli_num_rows($result) > 0) {
         echo "<table>";
-        echo "<tr><th>Ticket Number</th><th>Status</th></tr>";
+        echo "<tr><th>Ticket Number</th><th>Description</th><th>Status</th></tr>";
         while ($row = mysqli_fetch_assoc($result)) {
             echo "<tr>";
             echo "<td>" . $row['ticket_nr'] . "</td>";
+            echo "<td>" . $row['ticket_issue'] . "</td>";
             echo "<td>" . $row['ticket_status'] . "</td>";
             echo "</tr>";
         }
