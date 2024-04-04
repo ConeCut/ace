@@ -31,6 +31,10 @@ $result = mysqli_query($connection, $query);
         echo "<h2>Ticket Number: " . $row['ticket_nr'] . "</h2>";
         echo "<p><strong>Description:</strong> " . $row['ticket_issue'] . "</p>";
         echo "<p><strong>Status:</strong> " . $row['ticket_status'] . "</p>";
+        // Check if the ticket is solved
+        if ($row['ticket_status'] == 'Solved') {
+            echo "<p><strong>Solution:</strong> " . $row['ticket_solution'] . "</p>";
+        }
         // Add more details as needed
         echo "</div>";
     }

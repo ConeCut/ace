@@ -10,7 +10,7 @@ require_once 'C:\Users\Cosmin\IdeaProjects\oppdrag_uke_12\login_system\PROPER_PH
     <title>Ticket System</title>
     <link href="styles.css" type="text/css" rel="stylesheet">
 </head>
-<body>
+
 <?php
 include 'navbar.php';
 
@@ -19,6 +19,9 @@ if (isset($_SESSION['user_id'])) {
     ?>
 
     <h1>Tell us your concern and we will try to fix it!</h1>
+
+<button class="index_btn" onclick="window.location.href = '../ticket_system/contact_support.php'">Contact Support</button>
+
     <br>
     <h1>Submit a ticket down below!</h1>
 
